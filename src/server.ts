@@ -51,11 +51,7 @@ const initDB = async () => {
 
 initDB();
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("hello world!");
-});
-
-
+// users CRUD
 app.post("/users", async (req: Request, res: Response) => {
   console.log(req.body);
   const { name, email, age, phone, address } = req.body;
@@ -75,6 +71,23 @@ app.post("/users", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+});
+
+app.get("/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(`SELECT * FROM users`);
+    res.status(200).json({
+      success: true,
+      message: "Users Retrieve Successfully.",
+      data: result.rows,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      details: error,
     });
   }
 });
