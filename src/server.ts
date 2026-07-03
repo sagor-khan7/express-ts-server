@@ -173,6 +173,27 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
+// todos CRUD
+app.post("/todos", async (req: Request, res: Response) => {
+  const { user_id, title, description, completed } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO todos(user_id, title, description, completed) VALUES($1, $2, $3, $4) RETURNING *`,
+      [user_id, title, description, completed],
+    );
+    res.status(201).json({
+      success: true,
+      message: "Todo created.",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
