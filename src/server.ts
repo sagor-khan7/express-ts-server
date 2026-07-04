@@ -246,6 +246,34 @@ app.get("/todos/:id", async (req: Request, res: Response) => {
   }
 });
 
+app.put("/todos/:id", async (req: Request, res: Response) => {
+  const { user_id, title, description, completed } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE todos SET user_id=$1, title=$2, description=$3, completed=$4, id=$5 RETURNING *`,
+      [user_id, title, description, completed, req.params.id],
+    );
+    if (result.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "Todo not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Todo updated successfully.",
+        data: result.rows[0],
+      });
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      details: error,
+    });
+  }
+});
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
